@@ -1,45 +1,15 @@
 version: '3.8'
 
 # Docker Compose Override for Official Mailcow-Dockerized
-# This integrates the SMTP relay with IP rotation
+# Integrates KumoMTA for cold email delivery
 
 services:
-  smtprelay-iprot:
-    build:
-      context: ../smtprelay-ip-rotation
-      dockerfile: Dockerfile
-    container_name: smtprelay-iprot
-    restart: unless-stopped
-    environment:
-      - SMTP_PROVIDERS=${SMTP_PROVIDERS}
-      - OUTBOUND_IPS=${OUTBOUND_IPS}
-      - MAX_PER_IP_PER_HOUR=${MAX_PER_IP_PER_HOUR:-1000}
-      - ROTATION_STRATEGY=${ROTATION_STRATEGY:-roundrobin}
-    volumes:
-      - ../smtprelay-ip-rotation/logs:/app/logs:rw
-    networks:
-      - mailcow-network
-    cap_add:
-      - NET_ADMIN
-    healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2525"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   postfix-mailcow:
     environment:
-      - RELAYHOST=smtprelay-iprot:2525
+      - RELAYHOST=kumod-cold-email:2525
       - SMTP_SASL_AUTH_ENABLE=no
-    depends_on:
-      smtprelay-iprot:
-        condition: service_healthy
+    networks:
+      - mailcow-network
 
 networks:
   mailcow-network:

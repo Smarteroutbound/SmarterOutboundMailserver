@@ -3,8 +3,9 @@ set -e
 
 DOMAIN="${1:-mail.smarteroutbound.com}"
 MAILCOW_DIR="/opt/mailcow-dockerized"
+OVERRIDE_FILE="$(dirname "$0")/docker-compose.override.yml"
 
-echo "🚀 Deploying Official Mailcow for $DOMAIN"
+echo "🚀 Deploying Mailcow + KumoMTA for $DOMAIN"
 
 [[ $EUID -ne 0 ]] && { echo "❌ Run as root"; exit 1; }
 
@@ -24,6 +25,12 @@ cd "$MAILCOW_DIR"
 # Generate config
 [[ ! -f "mailcow.conf" ]] && echo "$DOMAIN" | ./generate_config.sh
 
+# Copy our override file
+if [[ -f "$OVERRIDE_FILE" ]]; then
+    cp "$OVERRIDE_FILE" ./docker-compose.override.yml
+    echo "✅ KumoMTA override applied"
+fi
+
 # Start services
 echo "🚀 Starting mailcow services..."
 docker-compose pull || { echo "❌ Pull failed"; exit 1; }
@@ -42,6 +49,7 @@ while [[ $counter -lt $timeout ]]; do
     counter=$((counter + 5))
 done
 
-echo "🎉 Mailcow deployed!"
+echo "🎉 Mailcow deployed with KumoMTA relay!"
 echo "📧 Access: https://$DOMAIN"
 echo "🔧 Admin: https://$DOMAIN/admin"
+echo "📨 SMTP Relay: KumoMTA on port 2525"
