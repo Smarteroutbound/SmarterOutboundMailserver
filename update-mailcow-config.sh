@@ -33,3 +33,4 @@ docker-compose up -d
 echo "🎉 Mailcow updated for KumoMTA integration!"
 echo "📝 API Key: $API_KEY"
 echo "🔗 Add this to your Django .env: MAILCOW_API_KEY=$API_KEY"
+echo "🌐 Test API: curl -X GET 'https://mail.trysmarteroutbound.com/api/v1/get/domain/all' -H 'X-API-Key: $API_KEY'"
