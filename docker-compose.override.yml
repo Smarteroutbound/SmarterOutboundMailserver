@@ -1,16 +1,17 @@
 version: '3.8'
 
 # Docker Compose Override for Official Mailcow-Dockerized
-# Integrates KumoMTA for cold email delivery
+# Connects to existing KumoMTA for cold email delivery
 
 services:
   postfix-mailcow:
     environment:
-      - RELAYHOST=kumod-cold-email:2525
+      - RELAYHOST=kumod-enterprise:25
       - SMTP_SASL_AUTH_ENABLE=no
     networks:
-      - mailcow-network
+      - kumo-network
 
 networks:
-  mailcow-network:
+  kumo-network:
     external: true
+    name: kumo-network
