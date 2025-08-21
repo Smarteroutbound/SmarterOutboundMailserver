@@ -1,17 +1,14 @@
 version: '3.8'
 
 # Docker Compose Override for Official Mailcow-Dockerized
-# Connects to existing KumoMTA for cold email delivery
+# Connects to KumoMTA via real IP addresses
 
 services:
   postfix-mailcow:
     environment:
-      - RELAYHOST=kumod-enterprise:25
+      - RELAYHOST=89.117.75.190:25
       - SMTP_SASL_AUTH_ENABLE=no
-    networks:
-      - kumo-network
-
-networks:
-  kumo-network:
-    external: true
-    name: kumo-network
+    extra_hosts:
+      - "kumomta-server:89.117.75.190"
+      - "django-server:151.236.251.75"
+    # Removed kumo-network - using real IPs instead
