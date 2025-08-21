@@ -42,7 +42,6 @@ cd "$MAILCOW_DIR"
 if [[ -f "$CONFIG_FILE" ]]; then
     echo "⚙️  Using custom Mailcow configuration..."
     cp "$CONFIG_FILE" ./mailcow.conf
-    # Update domain in config
     sed -i "s/MAILCOW_HOSTNAME=.*/MAILCOW_HOSTNAME=$DOMAIN/g" ./mailcow.conf
 else
     # Generate config if not exists
@@ -86,11 +85,4 @@ fi
 echo "🎉 Integrated deployment complete!"
 echo "📧 Mailcow: https://$DOMAIN"
 echo "🔧 Admin: https://$DOMAIN/admin"
-echo "📨 SMTP Relay: KumoMTA on port 25"
-echo "📊 KumoMTA Dashboard: http://localhost:8000"
-echo ""
-echo "🔗 Next steps:"
-echo "   1. Configure DNS records for $DOMAIN"
-echo "   2. Set up SSL certificates"
-echo "   3. Create admin user in Mailcow"
-echo "   4. Test email delivery through KumoMTA"
+echo "📨 SMTP Relay: KumoMTA on $KUMOMTA_SERVER:25"
