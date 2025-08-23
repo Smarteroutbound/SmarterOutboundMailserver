@@ -4,8 +4,11 @@ set -e
 DOMAIN="${1:-149.28.244.166}"
 MAILCOW_DIR="/opt/mailcow-dockerized"
 KUMOMTA_SERVER="${2:-89.117.75.190}"
-OVERRIDE_FILE="$(dirname "$0")/docker-compose.override.yml"
-CONFIG_FILE="$(dirname "$0")/mailcow.conf"
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+OVERRIDE_FILE="$SCRIPT_DIR/docker-compose.override.yml"
+CONFIG_FILE="$SCRIPT_DIR/mailcow.conf"
 
 echo "🚀 Deploying Integrated Mailcow + KumoMTA for $DOMAIN"
 echo "📡 KumoMTA Server: $KUMOMTA_SERVER"
@@ -44,6 +47,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
     cp "$CONFIG_FILE" ./mailcow.conf
     # Update domain in config
     sed -i "s/MAILCOW_HOSTNAME=.*/MAILCOW_HOSTNAME=$DOMAIN/g" ./mailcow.conf
+    echo "✅ Configuration copied and updated"
 else
     # Generate config if not exists
     if [[ ! -f "mailcow.conf" ]]; then
