@@ -12,14 +12,3 @@ services:
       - "kumomta-server:89.117.75.190"
       - "django-server:151.236.251.75"
     # Using real IPs - KumoMTA on standard port 25
-
-  redis-mailcow:
-    environment:
-      - REDIS_PASSWORD=mailcow_redis_password_2024
-    command: redis-server --requirepass mailcow_redis_password_2024 --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
-
-  dockerapi-mailcow:
-    environment:
-      - REDIS_PASSWORD=mailcow_redis_password_2024
-    depends_on:
-      - redis-mailcow
