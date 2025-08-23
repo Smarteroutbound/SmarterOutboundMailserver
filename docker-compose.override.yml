@@ -6,7 +6,7 @@ version: '3.8'
 services:
   postfix-mailcow:
     environment:
-      - RELAYHOST=89.117.75.190:25
+      - RELAYHOST=89.117.75.190:2525  # Use internal relay port
       - SMTP_SASL_AUTH_ENABLE=no
     extra_hosts:
       - "kumomta-server:89.117.75.190"
