@@ -22,12 +22,12 @@ else
     echo "✅ KumoMTA server is reachable"
 fi
 
-# Test KumoMTA SMTP (simplified)
-echo "⏳ Testing KumoMTA SMTP..."
-if nc -z -w5 $KUMOMTA_SERVER 25 2>/dev/null; then
-    echo "✅ KumoMTA SMTP port is open"
+# Test KumoMTA SMTP (internal relay port 2525)
+echo "⏳ Testing KumoMTA internal relay..."
+if nc -z -w5 $KUMOMTA_SERVER 2525 2>/dev/null; then
+    echo "✅ KumoMTA internal relay port 2525 is open"
 else
-    echo "⚠️  KumoMTA SMTP port not accessible - continuing anyway"
+    echo "⚠️  KumoMTA internal relay port 2525 not accessible - continuing anyway"
 fi
 
 # Clone official mailcow if not exists
@@ -77,8 +77,8 @@ fi
 # Test the integration
 echo "🧪 Testing KumoMTA integration..."
 sleep 30
-if docker exec postfix-mailcow postconf -h relayhost 2>/dev/null | grep -q "89.117.75.190:25"; then
-    echo "✅ Postfix configured to relay through KumoMTA"
+if docker exec postfix-mailcow postconf -h relayhost 2>/dev/null | grep -q "89.117.75.190:2525"; then
+    echo "✅ Postfix configured to relay through KumoMTA on port 2525"
 else
     echo "⚠️  Postfix relay configuration may need manual verification"
 fi
@@ -86,7 +86,7 @@ fi
 echo "🎉 Integrated deployment complete!"
 echo "📧 Mailcow: https://$DOMAIN"
 echo "🔧 Admin: https://$DOMAIN/admin"
-echo "📨 SMTP Relay: KumoMTA on port 25"
+echo "📨 SMTP Relay: KumoMTA on port 2525 (internal relay)"
 echo "📊 KumoMTA Dashboard: http://localhost:8000"
 echo ""
 echo "🔗 Next steps:"
