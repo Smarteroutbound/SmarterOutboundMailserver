@@ -52,7 +52,7 @@ test_mailcow() {
     
     # Check relay configuration
     RELAYHOST=$(docker exec postfix-mailcow postconf -h relayhost 2>/dev/null || echo "ERROR")
-    if [[ "$RELAYHOST" == "kumod-enterprise:25" ]]; then
+    if [[ "$RELAYHOST" == "89.117.75.190:2525" ]]; then
         echo -e "✅ Postfix is configured to relay through KumoMTA"
     else
         echo -e "❌ Postfix relay configuration is incorrect: $RELAYHOST"
@@ -60,7 +60,7 @@ test_mailcow() {
     fi
     
     # Check network connectivity
-    if docker exec postfix-mailcow ping -c 1 kumod-enterprise > /dev/null 2>&1; then
+    if docker exec postfix-mailcow ping -c 1 89.117.75.190 > /dev/null 2>&1; then
         echo -e "✅ Mailcow can reach KumoMTA"
     else
         echo -e "❌ Mailcow cannot reach KumoMTA"
@@ -82,7 +82,7 @@ test_api() {
     # Test Mailcow API (if accessible)
     if [[ -n "$MAILCOW_API_KEY" ]]; then
         if curl -s -H "X-API-Key: $MAILCOW_API_KEY" \
-                "https://mail.smarteroutbound.com/api/v1/get/domain/all" > /dev/null; then
+                "https://149.28.244.166/api/v1/get/domain/all" > /dev/null; then
             echo -e "✅ Mailcow API is accessible"
         else
             echo -e "⚠️  Mailcow API test failed (may be expected if not fully deployed)"
@@ -95,11 +95,11 @@ test_api() {
 test_email_flow() {
     echo -e "\n${YELLOW}Testing Email Flow...${NC}"
     
-    # Check if KumoMTA is listening on port 25
-    if netstat -tlnp 2>/dev/null | grep -q ":25 "; then
-        echo -e "✅ KumoMTA is listening on port 25"
+    # Check if KumoMTA is listening on port 2525 (internal relay)
+    if netstat -tlnp 2>/dev/null | grep -q ":2525 "; then
+        echo -e "✅ KumoMTA is listening on port 2525 (internal relay)"
     else
-        echo -e "❌ KumoMTA is not listening on port 25"
+        echo -e "❌ KumoMTA is not listening on port 2525 (internal relay)"
         return 1
     fi
     

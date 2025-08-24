@@ -1,3 +1,5 @@
+version: '3.8'
+
 # Docker Compose Override for Official Mailcow-Dockerized
 # Connects to KumoMTA via real IP addresses
 
@@ -6,6 +8,10 @@ services:
     environment:
       - RELAYHOST=89.117.75.190:2525  # Use internal relay port
       - SMTP_SASL_AUTH_ENABLE=no
+      - SMTP_SASL_PASSWORD_MAPS=
+      - SMTP_SASL_USERNAME=
     extra_hosts:
       - "kumomta-server:89.117.75.190"
       - "django-server:151.236.251.75"
+    networks:
+      - mailcow-network
