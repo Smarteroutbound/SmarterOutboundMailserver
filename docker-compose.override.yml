@@ -11,3 +11,4 @@ services:
     extra_hosts:
       - "kumomta-server:89.117.75.190"
       - "django-server:151.236.251.75"
+
