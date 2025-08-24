@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  unbound-mailcow:
+    image: ghcr.io/mailcow/unbound:1.24
+    environment:
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./data/hooks/unbound:/hooks:Z
+      - ./data/conf/unbound/unbound.conf:/etc/unbound/unbound.conf:ro,Z
+    restart: always
+    networks:
+      mailcow-network:
+        ipv4_address: ${IPV4_NETWORK:-172.22.1}.254
+
+  mysql-mailcow:
+    image: mariadb:10.11
+    depends_on:
+      - unbound-mailcow
+    volumes:
+      - mysql-vol-1:/var/lib/mysql/
+      - mysql-socket-vol-1:/var/run/mysqld/:z
+      - ./data/conf/mysql/:/etc/mysql/conf.d/:ro,Z
+    environment:
+      - TZ=${TZ:-UTC}
+      - MYSQL_ROOT_PASSWORD=${DBROOT}
+      - MYSQL_DATABASE=${DBNAME}
+      - MYSQL_USER=${DBUSER}
+      - MYSQL_PASSWORD=${DBPASS}
+    restart: always
+    ports:
+      - "${SQL_PORT:-127.0.0.1:13306}:3306"
+    networks:
+      mailcow-network:
+        aliases:
+          - mysql
+
+  php-fpm-mailcow:
+    image: ghcr.io/mailcow/phpfpm:1.93
+    command: "php-fpm -d date.timezone=${TZ:-UTC} -d expose_php=0"
+    depends_on:
+      - mysql-mailcow
+    volumes:
+      - ./data/web:/web:z
+      - mysql-socket-vol-1:/var/run/mysqld/:z
+    environment:
+      - TZ=${TZ:-UTC}
+      - DBNAME=${DBNAME}
+      - DBUSER=${DBUSER}
+      - DBPASS=${DBPASS}
+      - MAILCOW_HOSTNAME=${MAILCOW_HOSTNAME}
+    restart: always
+    networks:
+      mailcow-network:
+        aliases:
+          - phpfpm
+
+  nginx-mailcow:
+    image: ghcr.io/mailcow/nginx:1.03
+    depends_on:
+      - php-fpm-mailcow
+    volumes:
+      - ./data/web:/web:z
+      - ./data/conf/nginx/:/etc/nginx/conf.d/:z
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: always
+    networks:
+      mailcow-network:
+        aliases:
+          - nginx
+
+volumes:
+  mysql-vol-1:
+  mysql-socket-vol-1:
+
+networks:
+  mailcow-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${IPV4_NETWORK:-172.22.1}.0/24

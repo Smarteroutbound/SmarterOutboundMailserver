@@ -1,0 +1,11 @@
+# Docker Compose Override for Official Mailcow-Dockerized
+# Connects to KumoMTA via real IP addresses
+
+services:
+  postfix-mailcow:
+    environment:
+      - RELAYHOST=89.117.75.190:2525  # Use internal relay port
+      - SMTP_SASL_AUTH_ENABLE=no
+    extra_hosts:
+      - "kumomta-server:89.117.75.190"
+      - "django-server:151.236.251.75"
